@@ -1,6 +1,10 @@
 ---
-title: "CARBONARA"
+title: 'CARBONARA'
 date: 2022-10-19
+permalink: /posts/2022/10/carbonara/
+tags:
+  - pasta
+  - food
 ---
 
 # Personal favourite recipe
