@@ -11,8 +11,8 @@ title                    : "Spaghetti"
 title_separator          : "-"
 name                     : &name "Daniel"
 description              : &description "Research assistant"
-url                      : https://dany-l.github.io/spaghetti/ # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : "" # the subpath of your site, e.g. "/blog"
+url                      : https://dany-l.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+baseurl                  : "/spaghetti" # the subpath of your site, e.g. "/blog"
 repository               : "https://github.com/Dany-L/spaghetti"
 teaser                   :  # filename of teaser fallback teaser image placed in /images/, .e.g. "500x300.png"
 breadcrumbs              : false # true, false (default)
@@ -48,6 +48,9 @@ staticman:
         format           : "iso8601" # "iso8601" (default), "timestamp-seconds", "timestamp-milliseconds"
 atom_feed:
   path                   : # blank (default) uses feed.xml
+
+theme: minimal-mistakes-jekyll
+minimal_mistakes_skin:  "dark" # "default", "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # SEO Related
 google_site_verification :
@@ -197,7 +200,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: false
       comments: false
       share: false
