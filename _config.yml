@@ -49,8 +49,8 @@ staticman:
 atom_feed:
   path                   : # blank (default) uses feed.xml
 
-theme: minimal-mistakes-jekyll
-minimal_mistakes_skin:  "dark" # "default", "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+#theme: minimal-mistakes-jekyll
+#minimal_mistakes_skin:  "dark" # "default", "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # SEO Related
 google_site_verification :
