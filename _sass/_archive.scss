@@ -58,16 +58,16 @@
 }
 
 /* reduce size of date */
-
 .page__date {
-  font-size: $type-size-8;
-  padding-top: 0em;
-  padding-bottom: 1em;
+  font-size: $type-size-7;
+  margin-top: 0em;
+  margin-bottom: 1em;
 }
+
 
 .archive__item-excerpt {
   margin-top: 0;
-  font-size: $type-size-6;
+  font-size: $type-size-7;
 
   & + p {
     text-indent: 0;
@@ -88,7 +88,7 @@
   }
 
   .archive__item-title {
-    text-decoration: underline;
+    text-decoration: none;
   }
 }
 
