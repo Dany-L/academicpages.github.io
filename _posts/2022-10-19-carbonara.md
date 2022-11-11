@@ -1,5 +1,5 @@
 ---
-title: 'CARBONARA'
+title: 'Carbonara'
 date: 2022-10-19
 permalink: /posts/2022/10/carbonara/
 tags:
