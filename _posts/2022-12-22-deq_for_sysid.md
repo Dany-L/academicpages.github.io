@@ -18,6 +18,7 @@ The discretized inverted pendulum can be described by the state space representa
 $$
 \begin{align}
 \begin{aligned} 
+P & \left\{
     x^{k+1} & = 
     \begin{pmatrix}
         1 & \delta \\
@@ -43,20 +44,20 @@ $$
         1 & 0
     \end{pmatrix}
     x^k
-\end{aligned} \label{eq:linear_inv_pend}\\
-w^k = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
+\end{aligned} \right. \label{eq:linear_inv_pend}\\
+w^k & = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
 \end{align}
 $$
 where $\delta = 0.001$ is the sampling time, $g$ is the gravitational constant, $l$ the length of the rod and $m$ the mass. Common nonlinearities \eqref{eq:nonlinear_inv_pend} for neural networks are $\tanh(\cdot)$, $\operatorname{ReLU}(\cdot)$ or $\operatorname{LeakyReLU}(\cdot)$.
 ## Discrete linear time-invariant systems with nonlinear disturbance
 
 $$
-\begin{align*}
+\begin{align}
     G & \left\{ \begin{aligned}
         x^{k+1} & = A x^k + B_1 u^k + B_2 w^k \\
         y^k & = C_1 x^k + D_{11} u^k + D_{12} w^k \\
         z^k & = C_2 x^k + D_{21} u^k + D_{22} w^k
     \end{aligned} \right.\\
     w^k & = \Delta(z^k)
-\end{align*}
+\end{align}
 $$
