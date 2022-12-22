@@ -45,7 +45,7 @@ The discretized inverted pendulum can be described by the state space representa
 \end{align}
 w^k = \Delta(z^k) = z^k - \sin(z^k)
 $$ -->
-where $\delta = 0.001$ is the sampling time, $g$ is the gravitational constant, $l$ the length of the rod and $m$ the mass.
+<!-- where $\delta = 0.001$ is the sampling time, $g$ is the gravitational constant, $l$ the length of the rod and $m$ the mass. -->
 ## Discrete linear time-invariant systems with nonlinear disturbance
 
 <!-- $$
