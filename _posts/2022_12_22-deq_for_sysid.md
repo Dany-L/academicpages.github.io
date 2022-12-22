@@ -13,7 +13,7 @@ tags:
 
 ## Inverted pendulum
 The discretized inverted pendulum can be described by the state space representation
-$$
+<!-- $$
 \begin{align} 
     x^{k+1} & = 
     \begin{pmatrix}
@@ -42,15 +42,15 @@ $$
     x^k
 \end{align}
 w^k = \Delta(z^k) = z^k - \sin(z^k)
-$$
+$$ -->
 where $\delta = 0.001$ is the sampling time, $g$ is the gravitational constant, $l$ the length of the rod and $m$ the mass.
 ## Discrete linear time-invariant systems with nonlinear disturbance
 
-$$
+<!-- $$
     \begin{align}
         x^{k+1} & = A x^k + B_1 u^k + B_2 w^k \\
         y^k & = C_1 x^k + D_{11} u^k + D_{12} w^k \\
         z^k & = C_2 x^k + D_{21} u^k + D_{22} w^k
     \end{align}
     w^k = \Delta(z^k)
-$$
+$$ -->

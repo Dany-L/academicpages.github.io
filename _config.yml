@@ -205,7 +205,6 @@ defaults:
       comments: false
       share: false
       related: false
-      excerpt: true
   # _pages
   - scope:
       path: ""
