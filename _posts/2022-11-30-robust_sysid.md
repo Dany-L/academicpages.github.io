@@ -7,6 +7,7 @@ tags:
     - robust recurrent neural network
 
 ---
+Robust recurrent neural network for learning the motion model of a ship in open water, *submitted to [L4DC](https://l4dc.seas.upenn.edu)*
 
 
 # Abstract
