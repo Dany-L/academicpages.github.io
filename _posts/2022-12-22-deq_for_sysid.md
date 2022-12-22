@@ -17,8 +17,8 @@ Deep equilibrium networks and their relation to system theory, part of the semin
 The discretized inverted pendulum can be described by the state space representation
 $$
 \begin{align}
-\begin{aligned} 
 P & \left\{
+\begin{aligned} 
     x^{k+1} & = 
     \begin{pmatrix}
         1 & \delta \\
