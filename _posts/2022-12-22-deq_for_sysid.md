@@ -23,7 +23,7 @@ $$
 \end{equation}
 $$
 
-with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left\lbrace (u, y)_i \right\rbrace_{i=1}^K$.
+with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \lbrace (u, y)_i \rbrace$ for $i=1, \ldots, K$.
 
 The system \eqref{eq:nl_system} maps an input sequence $u$ to an output sequence $y$, recurrent neural networks are a natural fit to model sequence-to-sequence maps. From a system theoretic perspective recurrent neural networks are a discrete, linear, time-invariant system interconnected with a static nonlinearity known as the activation function, a very general formulation therefore follows as
 
@@ -107,15 +107,24 @@ with the output layer $h:\mathbb{R}^{n_z} \mapsto \mathbb{R}^{n_y}$, which can b
 The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by implicit differentiation
 
 $$
-\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(\left.J_{g_\theta}^{-1}\right|_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\begin{equation}
+\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\right\mid_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\end{equation}
 $$
 
-were $\left.J_{g_\theta}^{-1}\right|_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+
+were $J_{g_\theta}^{-1}\mid_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
 ## Example
-Lets make a simple example to compare a fixed layer neural network with a deep equilibrium model. We assume sequence length $T=3$, size of hidden state $n_x = 10$, input and output size $n_y = n_u = 1$. The weight are randomly initialized and the initial hidden state is set to zero $x^0 = 0$, $W_x \in \mathbb{R}^{n_x \times n_x}$, $U_x\in \mathbb{R}^{n_x \times T}$ and we take a linear output layer with $W_y \in \mathbb{R}^{n_y \times n_x}$, the biases are accordingly.
+Lets make a simple example to compare a fixed layer neural network with a deep equilibrium model. 
+
+We assume:
+- sequence length $T=3$
+- size of hidden state $n_x = 10$
+- input and output size $n_y = n_u = 1$
+The weight are randomly initialized and the initial hidden state is set to zero $x^0 = 0$, $W_h \in \mathbb{R}^{n_x \times n_x}$, $U_h\in \mathbb{R}^{n_x \times T}$ and we take a linear output layer with $W_y \in \mathbb{R}^{n_y \times n_x}$, the biases are accordingly.
 
 The forward pass for $L$ layers sequence-to-sequence model in PyTorch:
 ```python
@@ -123,7 +132,7 @@ The forward pass for $L$ layers sequence-to-sequence model in PyTorch:
 x = torch.zeros(size=(1, n_x))
 u = torch.tensor(u).reshape(1, n_u)
 for l in range(L):
-    x = nl(W_x(z) + U_x(u) + b_x)
+    x = nl(W_h(z) + U_h(u) + b_x)
 y_hat = W_y(x) + b_y
 ```
 The forward pass for the deep equilibrium model:
@@ -131,7 +140,7 @@ The forward pass for the deep equilibrium model:
 # DEQ
 def g_theta(x):
     x = x.reshape(n_x,1)
-    return np.squeeze(np.tanh(W_x_numpy @ z + U_x_numpy @ x + b_x_numpy) - z)
+    return np.squeeze(np.tanh(W_h_numpy @ z + U_h_numpy @ x + b_x_numpy) - z)
 
 x_star, infodict, ier, mesg = fsolve(g_theta, x0=x_0, full_output=True)
 x_star = z_star.reshape(n_z, 1)
@@ -153,65 +162,89 @@ Number of finite layers: 30      || x^L - x^* ||^2: 7.069e-08
 The result shows that a feed forward neural network converges to the same result as the equilibrium network if the layer size increases.
 
 # Monotone operator equilibrium networks
-Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$? Lets play with the example a little bit
+Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$? If the weight are initialized by a normal distribution with standard values `mean=0`, `std=1.0` [torch.nn.init.normal](https://pytorch.org/docs/stable/nn.init.html)
 ```python
-W_z = torch.nn.Linear(in_features=n_z, out_features=n_z, bias=True)
-torch.nn.init.normal_(W_z.weight)
-U_z = torch.nn.Linear(in_features=n_x, out_features=n_z, bias=False)
+W_h = torch.nn.Linear(in_features=n_z, out_features=n_z, bias=True)
+torch.nn.init.normal_(W_h.weight)
+U_h = torch.nn.Linear(in_features=n_x, out_features=n_z, bias=False)
 W_y = torch.nn.Linear(in_features=n_z, out_features=n_x, bias=True)
 ```
 
+The finite layer network reaches a different hidden state compared to the equilibrium network
+```python
+    Number of finite layers: 0       || x^L - x^* ||^2: 0.4664
+    Number of finite layers: 1       || x^L - x^* ||^2: 0.332
+    Number of finite layers: 2       || x^L - x^* ||^2: 1.035
+    Number of finite layers: 3       || x^L - x^* ||^2: 1.834
+    Number of finite layers: 4       || x^L - x^* ||^2: 2.348
+    Number of finite layers: 10      || x^L - x^* ||^2: 2.75
+    Number of finite layers: 20      || x^L - x^* ||^2: 2.724
+    Number of finite layers: 30      || x^L - x^* ||^2: 2.927
+```
+this can be seen by comparing the values for large finite layer values which clearly deviates.
+
+As an extension to deep equilibrium networks [monotone operator equilibrium networks](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) was introduced a year later at *NeurIPS 2020*. The monotone operator theory allows to formulate restrictions on the parameters that guarantee existence and uniqueness of a fixed point. We refer to the [Appendix A](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) for an introduction to monotone operator theory. In this post monotone operator splitting technique is assumed to be one root finding algorithm.
+
+Consider (again) a weight-tied input-injected network
+
+$$
+\begin{equation}
+    x^{k+1} = \Delta\left(W_h z^k + U_h u+b_h\right)
+    \label{eq:iter}
+\end{equation}
+$$
+
+and an equilibrium point that remains constant after update
+
+$$
+    x^* = \Delta\left(W_h z^* + U_h x +b_h\right).
+$$
+
+Finding an equilibrium point of \eqref{eq:iter} is equivalent of finding a zero of the operator splitting problem $0 \in (F+G)(z^*)$ with the operators
+
+$$
+\begin{equation}
+    F(x) = (I-W_h)(x) - (U_h u+b), \qquad G=\partial f
+    \label{eq:operator_splitting}
+\end{equation}
+$$
+
+and $\Delta(\cdot) = \operatorname{prox}_f^1(\cdot)$ for some convex closed proper function $f$, where $\operatorname{prox}_f^{\alpha}$ denotes the proximal operator
+
+$$
+    \operatorname{prox}_f^{\alpha}(x) \equiv \operatorname{argmin}_z \frac{1}{2}\|x - z\|_2^2 + \alpha f(z)
+$$
+
+The monotone operator \eqref{eq:operator_splitting} is strongly monotone if 
+
+$$
+I-W_h \precc mI
+$$ 
+
+for $m>0$, this is equivalent to the existence and uniqueness of an equilibrium point $x^*$.
+
+For the scalar case the monotonicity property is intuitive, consider 
+
+$$
+    F_{\operatorname{scal}}(z) = \underbrace{(1-w)}_{\text{slope}}z + \underbrace{(ux+b)}_{\text{constant}}.
+$$ 
+
+## Example
+To see that this restriction on the weight actually leads to a unique fixpoint, lets revisit our example for different initializations and print the eigenvalues:
+```python
+min EW of (I-W_h): 0.6272        L: 40   || x^L - x^* ||^2: 3.999e-08
+min EW of (I-W_h): 0.3782        L: 40   || x^L - x^* ||^2: 4.184e-08
+min EW of (I-W_h): 0.5671        L: 40   || x^L - x^* ||^2: 3.373e-08
+min EW of (I-W_h): 0.6786        L: 40   || x^L - x^* ||^2: 6.231e-08
+min EW of (I-W_h): 0.8057        L: 40   || x^L - x^* ||^2: 2.551e-08
+min EW of (I-W_h): 0.662         L: 40   || x^L - x^* ||^2: 3.364e-08
+min EW of (I-W_h): 0.3946        L: 40   || x^L - x^* ||^2: 4.522e-08
+min EW of (I-W_h): 0.6532        L: 40   || x^L - x^* ||^2: 2.656e-08
+min EW of (I-W_h): 0.4264        L: 40   || x^L - x^* ||^2: 3.059e-08
+min EW of (I-W_h): 0.6787        L: 40   || x^L - x^* ||^2: 5.395e-08
+```
+This supports the theoretical analysis.
 # System identification with equilibrium networks
 
 
-# Background
 
-<!-- 
-## Cart pole example
-The discretized inverted pendulum can be described by the state space representation
-$$
-\begin{align}
-P & \left\{
-\begin{aligned} 
-    x^{k+1} & = 
-    \begin{pmatrix}
-        1 & \delta \\
-        \frac{g \delta}{l} & 1 - \frac{\mu \delta}{m l^2}
-    \end{pmatrix}
-    x^k
-    \begin{pmatrix}
-        0 \\
-        -\frac{g\delta}{l}
-    \end{pmatrix}
-    u^k
-    \begin{pmatrix}
-        0 \\
-        \frac{\delta}{ml^2}
-    \end{pmatrix}
-    w^k \\
-    y^k & = 
-    \begin{pmatrix}
-        1 & 0
-    \end{pmatrix} x^k \\
-    z^k & = 
-    \begin{pmatrix}
-        1 & 0
-    \end{pmatrix}
-    x^k
-\end{aligned} \right. \label{eq:linear_inv_pend}\\
-w^k & = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
-\end{align}
-$$
-where $\delta = 0.001$ is the sampling time, $g$ is the gravitational constant, $l$ the length of the rod and $m$ the mass. Common nonlinearities \eqref{eq:nonlinear_inv_pend} for neural networks are $\tanh(\cdot)$, $\operatorname{ReLU}(\cdot)$ or $\operatorname{LeakyReLU}(\cdot)$.
-## Discrete linear time-invariant systems with nonlinear disturbance
-
-$$
-\begin{align}
-    G & \left\{ \begin{aligned}
-        x^{k+1} & = A x^k + B_1 u^k + B_2 w^k \\
-        y^k & = C_1 x^k + D_{11} u^k + D_{12} w^k \\
-        z^k & = C_2 x^k + D_{21} u^k + D_{22} w^k
-    \end{aligned} \right.\\
-    w^k & = \Delta(z^k)
-\end{align}
-$$ -->
