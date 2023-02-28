@@ -16,13 +16,15 @@ TODO: add references
 
 To appreciate that connection let us assume an unknown nonlinear dynamical system that can be described by a discrete differential equation 
 
+$$
 \begin{equation}
-\begin{aligned}
-x^{k+1} & = f_{\text{true}}(x^k, u^k) \\
-y^{k} & = g_{\text{true}}(x^k, u^k)
-\end{aligned}
+    \begin{aligned}
+    x^{k+1} & = f_{\text{true}}(x^k, u^k) \\
+    y^{k} & = g_{\text{true}}(x^k, u^k)
+    \end{aligned}
 \label{eq:nl_system}
 \end{equation}
+$$
 
 with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left{(u, y)_i \right}_{i=1}^K$.
 
@@ -73,7 +75,7 @@ $$
 
 Note that we neglected the bias terms.
 
-The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \left{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \right}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
+The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
 
 Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
 
@@ -85,6 +87,23 @@ The focus of this post is to highlight th link between deep equilibrium networks
 Consider a input sequence $u$ that is fed through a neural network with $L$ layers, on each layer $f_{\theta}^{0}(x^0, u), \ldots, f_{\theta}^{L-1}(x^{L-1}, u)$, where $x$ represents the hidden state and $f_{\theta}^i$ the activation function on each layer, the network is shown in Figure 
 
 <script type="text/tikz">
+  \begin{tikzpicture}
+    \draw (0,0) circle (1in);
+  \end{tikzpicture}
+</script>
+
+test python code block
+
+```python
+# forward pass for fixed number of layers
+z = torch.zeros(size=(1, n_z))
+x = torch.tensor(u).reshape(1, n_x)
+for l in range(L):
+    z = nl(W_z(z) + U_z(x))
+y_hat = W_y(z)
+```
+
+<!-- <script type="text/tikz">
 \tikzset{
     dotted_block/.style={
         draw=black!30!white, 
@@ -182,7 +201,7 @@ Consider a input sequence $u$ that is fed through a neural network with $L$ laye
         \draw[->] (G) -- (output) node[above] {$z_{1:T}^*$} ;    
     \end{onlyenv}
 \end{tikzpicture}
-</script>
+</script> -->
 
 TODO: add figure. 
 
