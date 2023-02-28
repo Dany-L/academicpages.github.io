@@ -15,18 +15,19 @@ Equilibrium network were introduced at [NeurIPS 2019](https://proceedings.neurip
 TODO: add references
 
 To appreciate that connection let us assume an unknown nonlinear dynamical system that can be described by a discrete differential equation 
-$$
+
 \begin{equation}
-\begin{align}
+\begin{aligned}
 x^{k+1} & = f_{\text{true}}(x^k, u^k) \\
 y^{k} & = g_{\text{true}}(x^k, u^k)
-\end{align}
+\end{aligned}
 \label{eq:nl_system}
 \end{equation}
-$$
-with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left\{(u, y)_i \right\}_{i=1}^K$.
+
+with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left{(u, y)_i \right}_{i=1}^K$.
 
 The system \eqref{eq:nl_system} maps an input sequence $u$ to an output sequence $y$, recurrent neural networks are a natural fit to model sequence-to-sequence maps. From a system theoretic perspective recurrent neural networks are a discrete, linear, time-invariant system interconnected with a static nonlinearity known as the activation function, a very general formulation therefore follows as
+
 $$
 \begin{equation}
     \begin{pmatrix}
@@ -47,7 +48,9 @@ $$
     \label{eq:rnn_linear}
 \end{equation}
 $$
+
 with $w^k = \Delta(z^k)$, the standard recurrent neural network results as a special case of this more general description, this can be seen by choosing the hidden state $h^{k} = x^{k+1}$, $\Delta(z^k) = \tanh(z^k)$ and the following parameters:
+
 $$
 \begin{equation*}
     \begin{pmatrix}
@@ -67,9 +70,10 @@ $$
     \end{pmatrix}
 \end{equation*}
 $$
+
 Note that we neglected the bias terms.
 
-The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \left\{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \right\}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
+The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \left{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \right}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
 
 Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
 
@@ -79,6 +83,106 @@ The focus of this post is to highlight th link between deep equilibrium networks
 
 # Deep equilibrium networks
 Consider a input sequence $u$ that is fed through a neural network with $L$ layers, on each layer $f_{\theta}^{0}(x^0, u), \ldots, f_{\theta}^{L-1}(x^{L-1}, u)$, where $x$ represents the hidden state and $f_{\theta}^i$ the activation function on each layer, the network is shown in Figure 
+
+<script type="text/tikz">
+\tikzset{
+    dotted_block/.style={
+        draw=black!30!white, 
+        dashed,
+        inner ysep=2mm,
+        inner xsep=10mm, 
+        rectangle, 
+        rounded corners
+    },
+    block/.style={
+        draw,
+        rectangle,
+        rounded corners,
+        minimum height=2em,
+        minimum width=2em
+    },
+    operator/.style={
+        draw,
+        circle,
+        thin,
+        minimum height=1em,
+	   inner sep=1pt
+    },
+    weight/.style={
+        draw,
+        thin,
+        rounded corners,
+        rectangle,
+        %minimum height=2em,
+        %minimum width=4em
+    },
+    value/.style={
+        draw,
+        thin,
+        rectangle,
+        %minimum height=2em,
+        %minimum width=3em
+    },
+    gain/.style={
+        regular polygon, 
+        regular polygon sides=3,
+        draw, 
+        fill=white, 
+        text width=1em,
+        inner sep=1mm, 
+        outer sep=0mm,
+        shape border rotate=-90
+    },
+    concat/.style={
+        draw,
+        shape=circle, 
+        fill=black,
+        %minimum height=0.5em,
+	   inner sep=0pt
+    },
+}
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
+    % blocks
+    \node[] (input) {};
+    \node[block, right= of input] (G) {
+        \node[] (inL1) {};
+        \node[block, right= of inL1] (L1) {$f_{\theta}^{[0]}(z_{1:T}^0; x_{1:T})$};
+        \node[right= of L1] (outL1) {};
+        \node[above= of L1] (inX) {};
+
+        \node[right= of outL1] (dots) {$\cdots$};
+
+        \node[right= of dots] (inLL) {};
+        \node[block, right= of inLL] (LL) {$f_{\theta}^{[L-1]}(z_{1:T}^{L-1}; x_{1:T})$};
+        \node[right= of LL] (outLL) {};
+        \node[above= of LL] (inXL) {};
+        
+        
+        % Input and outputs coordinates
+        
+        % lines
+        \draw[->] (inX) node[right] {$x_{1:T}$} -- (L1.north);
+        \draw[->] (inL1) node[above] {$z_{1:T}^0$} -- (L1);
+        \draw[->] (L1)  --  (outL1) node[above] {$z^1_{1:T}$};
+        \draw[->] (inXL) node[right] {$x_{1:T}$} -- (LL.north);
+        \draw[->] (inLL) node[above] {$z_{1:T}^{L-1}$} -- (LL);
+        \draw[->] (LL) -- (outLL) node[above] {$z_{1:T}^L$};  
+    };
+    \node at (G.north) [above] {$\mathcal{S}_{\operatorname{DEQ}}$};
+    \node[right= of G] (output) {};
+    
+    % Input and outputs coordinates
+    
+    % lines
+    \draw[->] (input)  node[above] {$x_{1:T}, z_{1:T}^0$} -- (G);
+    \begin{onlyenv}<1-3>
+        \draw[->] (G) -- (output) node[above] {$z_{1:T}^L$} ;    
+    \end{onlyenv}
+    \begin{onlyenv}<4->
+        \draw[->] (G) -- (output) node[above] {$z_{1:T}^*$} ;    
+    \end{onlyenv}
+\end{tikzpicture}
+</script>
 
 TODO: add figure. 
 
