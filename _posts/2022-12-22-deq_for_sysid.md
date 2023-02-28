@@ -103,7 +103,8 @@ for l in range(L):
 y_hat = W_y(z)
 ```
 
-<!-- <script type="text/tikz">
+<script type="text/tikz">
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
 \tikzset{
     dotted_block/.style={
         draw=black!30!white, 
@@ -160,7 +161,6 @@ y_hat = W_y(z)
 	   inner sep=0pt
     },
 }
-\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
     % blocks
     \node[] (input) {};
     \node[block, right= of input] (G) {
@@ -201,7 +201,7 @@ y_hat = W_y(z)
         \draw[->] (G) -- (output) node[above] {$z_{1:T}^*$} ;    
     \end{onlyenv}
 \end{tikzpicture}
-</script> -->
+</script>
 
 TODO: add figure. 
 
