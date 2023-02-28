@@ -112,12 +112,12 @@ The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by 
 
 $$
 \begin{equation}
-\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\right\vert_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
 \end{equation}
 $$
 
 
-were $J_{g_\theta}^{-1}\vert_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $J_{g_\theta}^{-1} {x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
