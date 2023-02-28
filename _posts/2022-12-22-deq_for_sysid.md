@@ -6,14 +6,99 @@ tags:
     - system identification
     - equilibrium models
 ---
-Deep equilibrium networks and their relation to system theory, part of the seminar *Machine Learning in the Sciences by [Mathias Niepert](http://www.matlog.net)*. The code for the examples shown is available on [GitHub](https://github.com/Dany-L/RenForSysId)
+Deep equilibrium networks and their relation to system theory, part of the seminar *Machine Learning in the Sciences by [Mathias Niepert](http://www.matlog.net)*. 
 
+<!-- The code for the examples shown is available on [GitHub](https://github.com/Dany-L/RenForSysId) -->
 
-# Introduction
+# Motivation
+Equilibrium network were introduced at [NeurIPS 2019](https://proceedings.neurips.cc/paper/2019/hash/01386bd6d8e091c2ab4c7c7de644d37b-Abstract.html) with the main benefit being their memory efficiency. Compared to state-of-the-art networks deep equilibrium networks could reach the same level of accuracy without storing the output of each layer to do backpropagation. In this post the goal is to stress the connection between deep equilibrium networks and how they can be applied to system identification and control. This link is also seen in a [CDC 2022]() paper and [Synthesis of Stabilizing Recurrent Equilibrium Network Controllers]() [Recurrent Equilibrium Networks: Flexible Dynamic Models with Guaranteed Stability and Robustness]().
+TODO: add references
+
+To appreciate that connection let us assume an unknown nonlinear dynamical system that can be described by a discrete differential equation 
+$$
+\begin{equation}
+\begin{align}
+x^{k+1} & = f_{\text{true}}(x^k, u^k) \\
+y^{k} & = g_{\text{true}}(x^k, u^k)
+\end{align}
+\label{eq:nl_system}
+\end{equation}
+$$
+with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left\{(u, y)_i \right\}_{i=1}^K$.
+
+The system \eqref{eq:nl_system} maps an input sequence $u$ to an output sequence $y$, recurrent neural networks are a natural fit to model sequence-to-sequence maps. From a system theoretic perspective recurrent neural networks are a discrete, linear, time-invariant system interconnected with a static nonlinearity known as the activation function, a very general formulation therefore follows as
+$$
+\begin{equation}
+    \begin{pmatrix}
+        x^{k+1} \\
+        \hat{y} \\
+        z^k 
+    \end{pmatrix} =
+    \begin{pmatrix}
+        A & \tilde{B}_1 & \tilde{B}_2 \\
+        C_1 & D_{11} & D_{12} \\
+        C_2 & D_{21} & D_{22} 
+    \end{pmatrix}
+    \begin{pmatrix}
+        x^k \\
+        u^k \\
+        w^k
+    \end{pmatrix}
+    \label{eq:rnn_linear}
+\end{equation}
+$$
+with $w^k = \Delta(z^k)$, the standard recurrent neural network results as a special case of this more general description, this can be seen by choosing the hidden state $h^{k} = x^{k+1}$, $\Delta(z^k) = \tanh(z^k)$ and the following parameters:
+$$
+\begin{equation*}
+    \begin{pmatrix}
+        x^{k+1} \\
+        \hat{y}^k \\
+        z^k 
+    \end{pmatrix}=
+    \begin{pmatrix}
+        0 & 0 & I \\
+        0 & 0 & W_y \\
+        W_h & U_h & 0
+    \end{pmatrix}
+    \begin{pmatrix}
+        x^k \\
+        u^k \\
+        w^k
+    \end{pmatrix}
+\end{equation*}
+$$
+Note that we neglected the bias terms.
+
+The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \left\{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \right\}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
+
+Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
+
+In the next section the basic concept of deep equilibrium networks will be explained, this naturally leads to monotone operator equilibrium networks. In section 3 the motivation is revisited and followed by a conclusion.
+
+The focus of this post is to highlight th link between deep equilibrium networks and their application to problems in system and control. Details on how to calculate the gradient and monotone operator theory are only referenced.
+
+# Deep equilibrium networks
+Consider a input sequence $u$ that is fed through a neural network with $L$ layers, on each layer $f_{\theta}^{0}(x^0, u), \ldots, f_{\theta}^{L-1}(x^{L-1}, u)$, where $x$ represents the hidden state and $f_{\theta}^i$ the activation function on each layer, the network is shown in Figure 
+
+TODO: add figure. 
+
+Note that such a network matches the system \eqref{eq:nl_system}.
+
+The first step towards deep equilibrium networks is to tie the weights $f_{\theta}^{0}(x^0, u) = $f_{\theta}^{i}(x^0, u)$ for all $i=0, \ldots, L-1$. It turns out that this restriction does not hurt the prediction accuracy of the network, since any deep neural network can be replaced by a single layer by increasing the size of the weight (See TODO for details).
+
+The weight tied network is shown in Figure TODO.
+
+In a next step the number of layer is increased $L \to \infty$. The forward pass can now also be formulated as finding a fixed point $z^*$, which can be solved by a number of root fining algorithm as illustrated in Figure TODO
+
+# Monotone operator equilibrium networks
+
+# System identification with equilibrium networks
+
 
 # Background
 
-## Inverted pendulum
+<!-- 
+## Cart pole example
 The discretized inverted pendulum can be described by the state space representation
 $$
 \begin{align}
@@ -60,4 +145,4 @@ $$
     \end{aligned} \right.\\
     w^k & = \Delta(z^k)
 \end{align}
-$$
+$$ -->
