@@ -75,7 +75,7 @@ $$
 
 Note that we neglected the bias terms.
 
-The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \{A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \}$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
+The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \lbrace A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \rbrace$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
 
 Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
 
@@ -104,88 +104,56 @@ y_hat = W_y(z)
 ```
 
 <script type="text/tikz">
-\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
-\tikzset{
-    dotted_block/.style={
-        draw=black!30!white, 
-        dashed,
-        inner ysep=2mm,
-        inner xsep=10mm, 
-        rectangle, 
-        rounded corners
-    },
+\begin{tikzpicture}[
+    node distance = 0.25cm and 0.5cm, 
+    auto, 
+    align=center,
     block/.style={
         draw,
         rectangle,
         rounded corners,
         minimum height=2em,
         minimum width=2em
-    },
-    operator/.style={
-        draw,
-        circle,
-        thin,
-        minimum height=1em,
-	   inner sep=1pt
-    },
-    weight/.style={
-        draw,
-        thin,
-        rounded corners,
-        rectangle,
-        %minimum height=2em,
-        %minimum width=4em
-    },
-    value/.style={
-        draw,
-        thin,
-        rectangle,
-        %minimum height=2em,
-        %minimum width=3em
-    },
-    gain/.style={
-        regular polygon, 
-        regular polygon sides=3,
-        draw, 
-        fill=white, 
-        text width=1em,
-        inner sep=1mm, 
-        outer sep=0mm,
-        shape border rotate=-90
-    },
-    concat/.style={
-        draw,
-        shape=circle, 
-        fill=black,
-        %minimum height=0.5em,
-	   inner sep=0pt
-    },
-}
+    }
+]    
     % blocks
     \node[] (input) {};
     \node[block, right= of input] (G) {
-        \node[] (inL1) {};
-        \node[block, right= of inL1] (L1) {$f_{\theta}^{[0]}(z_{1:T}^0; x_{1:T})$};
-        \node[right= of L1] (outL1) {};
-        \node[above= of L1] (inX) {};
+        \begin{tikzpicture}[
+            node distance = 0.25cm and 0.5cm, 
+            auto, 
+            align=center,
+            block/.style={
+                draw,
+                rectangle,
+                rounded corners,
+                minimum height=2em,
+                minimum width=2em
+            }
+        ]   
+            \node[] (inL1) {};
+            \node[block, right= of inL1] (L1) {$f_{\theta}^{[0]}(z_{1:T}^0; x_{1:T})$};
+            \node[right= of L1] (outL1) {};
+            \node[above= of L1] (inX) {};
 
-        \node[right= of outL1] (dots) {$\cdots$};
+            \node[right= of outL1] (dots) {$\cdots$};
 
-        \node[right= of dots] (inLL) {};
-        \node[block, right= of inLL] (LL) {$f_{\theta}^{[L-1]}(z_{1:T}^{L-1}; x_{1:T})$};
-        \node[right= of LL] (outLL) {};
-        \node[above= of LL] (inXL) {};
-        
-        
-        % Input and outputs coordinates
-        
-        % lines
-        \draw[->] (inX) node[right] {$x_{1:T}$} -- (L1.north);
-        \draw[->] (inL1) node[above] {$z_{1:T}^0$} -- (L1);
-        \draw[->] (L1)  --  (outL1) node[above] {$z^1_{1:T}$};
-        \draw[->] (inXL) node[right] {$x_{1:T}$} -- (LL.north);
-        \draw[->] (inLL) node[above] {$z_{1:T}^{L-1}$} -- (LL);
-        \draw[->] (LL) -- (outLL) node[above] {$z_{1:T}^L$};  
+            \node[right= of dots] (inLL) {};
+            \node[block, right= of inLL] (LL) {$f_{\theta}^{[L-1]}(z_{1:T}^{L-1}; x_{1:T})$};
+            \node[right= of LL] (outLL) {};
+            \node[above= of LL] (inXL) {};
+            
+            
+            % Input and outputs coordinates
+            
+            % lines
+            \draw[->] (inX) node[right] {$x_{1:T}$} -- (L1.north);
+            \draw[->] (inL1) node[above] {$z_{1:T}^0$} -- (L1);
+            \draw[->] (L1)  --  (outL1) node[above] {$z^1_{1:T}$};
+            \draw[->] (inXL) node[right] {$x_{1:T}$} -- (LL.north);
+            \draw[->] (inLL) node[above] {$z_{1:T}^{L-1}$} -- (LL);
+            \draw[->] (LL) -- (outLL) node[above] {$z_{1:T}^L$};  
+        \end{tikzpicture}
     };
     \node at (G.north) [above] {$\mathcal{S}_{\operatorname{DEQ}}$};
     \node[right= of G] (output) {};
@@ -194,12 +162,7 @@ y_hat = W_y(z)
     
     % lines
     \draw[->] (input)  node[above] {$x_{1:T}, z_{1:T}^0$} -- (G);
-    \begin{onlyenv}<1-3>
-        \draw[->] (G) -- (output) node[above] {$z_{1:T}^L$} ;    
-    \end{onlyenv}
-    \begin{onlyenv}<4->
-        \draw[->] (G) -- (output) node[above] {$z_{1:T}^*$} ;    
-    \end{onlyenv}
+    \draw[->] (G) -- (output) node[above] {$z_{1:T}^L$} ;    
 \end{tikzpicture}
 </script>
 
