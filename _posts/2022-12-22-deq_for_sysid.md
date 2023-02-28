@@ -112,12 +112,12 @@ The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by 
 
 $$
 \begin{equation}
-\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\mid_{x^{*}}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
 \end{equation}
 $$
 
 
-were $J_{g_\theta}^{-1} {x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $J_{g_\theta}^{-1} \mid_{x^{*}}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
@@ -238,6 +238,7 @@ For the scalar case the monotonicity property is intuitive, consider
 $$
     F_{\operatorname{scal}}(x) = \underbrace{(1-w_h)}_{\text{slope}}x + \underbrace{(u_hu+b)}_{\text{constant}},
 $$ 
+
 the condition \eqref{eq:condition} refers to a positive slope for $F_{\text{scal}}(x)$
 
 ## Example
@@ -260,7 +261,7 @@ The monotone operator equilibrium network guarantees the existence and uniquenes
 
 Now lets look back at the original problem of learning an unknown nonlinear differential equation \eqref{eq:nl_system} from a dataset $\mathcal{D}$ that consists of input-output measurements. How can we use equilibrium networks to improve prediction accuracy? In the recurrent neural network \eqref{eq:rnn_linear} the state that is fed through the nonlinear activation function $z^k$ depends on the output of the nonlinearity $w^k$ when the parameter $D_{22} is not zero. This is exactly a fixed point problem that needs to be solved before iterating through the sequence.
 
-Before equilibrium network where popular the parameter $D_{22}$ was usually set to zero to avoid such direct dependency between the output and the input. This reduced the expressiveness of the network \eqref{eq:rnn_linear}. Deep equilibrium networks allow for $D_{22}\neq 0$ to calculate the fixed point $z^*$ in \eqref{eq:rnn_linear} and monotone operator deep equilibrium networks even guarantee that $z^*$ exists and that it is unique.
+Before equilibrium network where popular the parameter $D_{22}$ was usually set to zero to avoid such direct dependency between the output and the input. This reduced the expressiveness of the network \eqref{eq:rnn_linear}. Deep equilibrium networks allow for $D_{22}\neq 0$ to calculate the fixed point $z^{*}$ in \eqref{eq:rnn_linear} and monotone operator deep equilibrium networks even guarantee that $z^*$ exists and that it is unique.
 
 Additionally and that is independent of deep equilibrium networks the description of an recurrent neural network as linear, time-invariant system with nonlinear disturbance as shown in \eqref{eq:rnn_linear} allows to use well established theory of robust control to analyze stability and performance of the network.
 
