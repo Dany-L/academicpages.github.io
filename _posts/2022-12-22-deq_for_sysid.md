@@ -11,7 +11,7 @@ Deep equilibrium networks and their relation to system theory, part of the semin
 <!-- The code for the examples shown is available on [GitHub](https://github.com/Dany-L/RenForSysId) -->
 
 # Motivation
-Equilibrium network were introduced at [NeurIPS 2019](https://proceedings.neurips.cc/paper/2019/hash/01386bd6d8e091c2ab4c7c7de644d37b-Abstract.html) with the main benefit being their memory efficiency. Compared to state-of-the-art networks deep equilibrium networks could reach the same level of accuracy without storing the output of each layer to do backpropagation. In this post the goal is to stress the connection between deep equilibrium networks and how they can be applied to system identification and control. This link is also seen in a [CDC 2022]() paper and [Synthesis of Stabilizing Recurrent Equilibrium Network Controllers]() [Recurrent Equilibrium Networks: Flexible Dynamic Models with Guaranteed Stability and Robustness]().
+Equilibrium network were introduced at [NeurIPS 2019](https://proceedings.neurips.cc/paper/2019/hash/01386bd6d8e091c2ab4c7c7de644d37b-Abstract.html) with the main benefit being their memory efficiency. Compared to state-of-the-art networks deep equilibrium networks could reach the same level of accuracy without storing the output of each layer to do backpropagation. In this post the goal is to stress the connection between deep equilibrium networks and how they can be applied to system identification and control. This link is also seen in a [CDC 2022](https://ieeexplore.ieee.org/abstract/document/9992684/) and [CDC 2021](https://ieeexplore.ieee.org/abstract/document/9683054/) paper.
 TODO: add references
 
 To appreciate that connection let us assume an unknown nonlinear dynamical system that can be described by a discrete differential equation 
@@ -26,7 +26,7 @@ $$
 \end{equation}
 $$
 
-with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \left{(u, y)_i \right}_{i=1}^K$.
+with given initial condition $x^0$. The state is denoted by $x^k$, the input by $u^k$ and the output by $y^k$, the superscript indicates the time step of the sequence $k=1, \ldots, N$. The goal in system identification is to learn the functions $g_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_y}$ and $f_{\text{true}}: \mathbb{R}^{n_x} \times \mathbb{R}^{n_u} \mapsto \mathbb{R}^{n_x}$ from a set of input-output measurements $\mathcal{D} = \lbrace (u, y)_i \rbrace_{i=1}^K$.
 
 The system \eqref{eq:nl_system} maps an input sequence $u$ to an output sequence $y$, recurrent neural networks are a natural fit to model sequence-to-sequence maps. From a system theoretic perspective recurrent neural networks are a discrete, linear, time-invariant system interconnected with a static nonlinearity known as the activation function, a very general formulation therefore follows as
 
@@ -118,6 +118,25 @@ y_hat = W_y(z)
 ]    
     % blocks
     \node[] (input) {};
+    \node[block, right= of input] (G) {$G$};
+\end{tikzpicture}
+</script>
+
+<!-- <script type="text/tikz">
+\begin{tikzpicture}[
+    node distance = 0.25cm and 0.5cm, 
+    auto, 
+    align=center,
+    block/.style={
+        draw,
+        rectangle,
+        rounded corners,
+        minimum height=2em,
+        minimum width=2em
+    }
+]    
+    % blocks
+    \node[] (input) {};
     \node[block, right= of input] (G) {
         \begin{tikzpicture}[
             node distance = 0.25cm and 0.5cm, 
@@ -164,7 +183,7 @@ y_hat = W_y(z)
     \draw[->] (input)  node[above] {$x_{1:T}, z_{1:T}^0$} -- (G);
     \draw[->] (G) -- (output) node[above] {$z_{1:T}^L$} ;    
 \end{tikzpicture}
-</script>
+</script> -->
 
 TODO: add figure. 
 
