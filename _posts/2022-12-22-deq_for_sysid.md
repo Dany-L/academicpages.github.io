@@ -105,9 +105,9 @@ with the output layer $h:\mathbb{R}^{n_z} \mapsto \mathbb{R}^{n_y}$, which can b
 
 The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by implicit differentiation
 $$
-\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(\left.J_{g_\theta}^{-1}\right|_{{x}^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(\left.J_{g_\theta}^{-1}\right|_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
 $$
-were $\left.J_{g_\theta}^{-1}\right|_{{x}^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $\left.J_{g_\theta}^{-1}\right|_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
@@ -150,7 +150,7 @@ Number of finite layers: 30      || x^L - x^* ||^2: 7.069e-08
 The result shows that a feed forward neural network converges to the same result as the equilibrium network if the layer size increases.
 
 # Monotone operator equilibrium networks
-
+Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point.
 
 # System identification with equilibrium networks
 
