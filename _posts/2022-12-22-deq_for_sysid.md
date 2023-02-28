@@ -83,15 +83,15 @@ The focus of this post is to highlight th link between deep equilibrium networks
 # Deep equilibrium networks
 Consider a input sequence $u$ that is fed through a neural network with $L$ layers, on each layer $f_{\theta}^{[0]}(x^0, u), \ldots, f_{\theta}^{[L-1]}(x^{L-1}, u)$, where $x$ represents the hidden state and $f_{\theta}^{[i]}$ the activation function on each layer.
 
-![Deep forward model](/images/fwd_deep.png)
+![Deep forward model](/spaghetti/images/fwd_deep.png)
 
 The first step towards deep equilibrium networks is to tie the weights $f_{\theta}^{0}(x^0, u) = $f_{\theta}^{i}(x^0, u)$ for all $i=0, \ldots, L-1$. It turns out that this restriction does not hurt the prediction accuracy of the network, since any deep neural network can be replaced by a single layer by increasing the size of the weight (See [Appendix C](https://proceedings.neurips.cc/paper/2019/hash/01386bd6d8e091c2ab4c7c7de644d37b-Abstract.html) for details).
 
-![Weight tied network](/images/fwd_tied.png)
+![Weight tied network](/spaghetti/images/fwd_tied.png)
 
 In a next step the number of layer is increased $L \to \infty$. The forward pass can now also be formulated as finding a fixed point $x^*$, which can be solved by a number of root fining algorithm as illustrated next.
 
-![Deep equilibrium model](/images/fwd_deq.png)
+![Deep equilibrium model](/spaghetti/images/fwd_deq.png)
 
 ## Backward pass
 To train the deep equilibrium network the gradient with respect to the parameters $\theta$ needs to be calculated from the forward pass. Traditionally this is achieved by stepping trough the forward pass of the deep neural network. For deep equilibrium models however this is not desired, since the gradient should be independent of the root finding algorithm.
@@ -110,7 +110,7 @@ $$
 \frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(\left.J_{g_\theta}^{-1}\right|_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
 $$
 
-were $J_{g_\theta}^{-1}|_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $\left.J_{g_\theta}^{-1}\right|_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
@@ -153,7 +153,13 @@ Number of finite layers: 30      || x^L - x^* ||^2: 7.069e-08
 The result shows that a feed forward neural network converges to the same result as the equilibrium network if the layer size increases.
 
 # Monotone operator equilibrium networks
-Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$?
+Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$? Lets play with the example a little bit
+```python
+W_z = torch.nn.Linear(in_features=n_z, out_features=n_z, bias=True)
+torch.nn.init.normal_(W_z.weight)
+U_z = torch.nn.Linear(in_features=n_x, out_features=n_z, bias=False)
+W_y = torch.nn.Linear(in_features=n_z, out_features=n_x, bias=True)
+```
 
 # System identification with equilibrium networks
 
