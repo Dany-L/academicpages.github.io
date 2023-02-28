@@ -75,7 +75,9 @@ Note that we neglected the bias terms.
 The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \lbrace A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \rbrace$ such that the error between the prediction and the output measurement is small,
 
 $$
+\begin{equation*}
 \min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|
+\end{equation*}
 $$.
 
 Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
@@ -93,7 +95,7 @@ The first step towards deep equilibrium networks is to tie the weights $f_{\thet
 
 ![Weight tied network](/spaghetti/images/fwd_tied.png)
 
-In a next step the number of layer is increased $L \to \infty$. The forward pass can now also be formulated as finding a fixed point $x^*$, which can be solved by a number of root fining algorithm as illustrated next.
+In a next step the number of layer is increased $L \to \infty$. The forward pass can now also be formulated as finding a fixed point $x^{\star}$, which can be solved by a number of root fining algorithm as illustrated next.
 
 ![Deep equilibrium model](/spaghetti/images/fwd_deq.png)
 
@@ -103,7 +105,9 @@ To train the deep equilibrium network the gradient with respect to the parameter
 The loss function follows as
 
 $$
+\begin{equation*}
 \ell=\mathcal{L}\left(h\left(\operatorname{RootFind}\left(g_0 ; u\right)\right), y\right),
+\end{equation*}
 $$
 
 with the output layer $h:\mathbb{R}^{n_z} \mapsto \mathbb{R}^{n_y}$, which can be any differentiable function (e.g. linear), $y$ is the ground-truth sequence and $\mathcal{L}:\mathbb{R}^{n_y}\times\mathbb{R}^{n_y} \mapsto \mathbb{R}$ is the loss function.
@@ -111,13 +115,13 @@ with the output layer $h:\mathbb{R}^{n_z} \mapsto \mathbb{R}^{n_y}$, which can b
 The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by implicit differentiation
 
 $$
-\begin{equation}
+\begin{equation*}
 \frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\mid_{x^{\star}}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
-\end{equation}
+\end{equation*}
 $$
 
 
-were $J_{g_\theta}^{-1} \mid_{x^{\star}}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $J_{g_\theta}^{-1} \mid_{x^{\star}}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^{\star}$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
@@ -155,14 +159,14 @@ Note that the code are only small snippets that should give an idea on how to im
 
 The results for different values of $L$ are compared
 ```python
-Number of finite layers: 0       || x^L - x^* ||^2: 0.7032
-Number of finite layers: 1       || x^L - x^* ||^2: 0.3898
-Number of finite layers: 2       || x^L - x^* ||^2: 0.2898
-Number of finite layers: 3       || x^L - x^* ||^2: 0.1621
-Number of finite layers: 4       || x^L - x^* ||^2: 0.09451
-Number of finite layers: 10      || x^L - x^* ||^2: 0.001685
-Number of finite layers: 20      || x^L - x^* ||^2: 7.595e-06
-Number of finite layers: 30      || x^L - x^* ||^2: 7.069e-08
+Number of finite layers: 0       || x^L - x^{\star} ||^2: 0.7032
+Number of finite layers: 1       || x^L - x^{\star} ||^2: 0.3898
+Number of finite layers: 2       || x^L - x^{\star} ||^2: 0.2898
+Number of finite layers: 3       || x^L - x^{\star} ||^2: 0.1621
+Number of finite layers: 4       || x^L - x^{\star} ||^2: 0.09451
+Number of finite layers: 10      || x^L - x^{\star} ||^2: 0.001685
+Number of finite layers: 20      || x^L - x^{\star} ||^2: 7.595e-06
+Number of finite layers: 30      || x^L - x^{\star} ||^2: 7.069e-08
 ```
 The result shows that a feed forward neural network converges to the same result as the equilibrium network if the layer size increases.
 
@@ -179,16 +183,16 @@ W_y = torch.nn.Linear(in_features=n_z, out_features=n_x, bias=True)
 
 The finite layer network reaches a different hidden state compared to the equilibrium network
 ```python
-    Number of finite layers: 0       || x^L - x^* ||^2: 0.4664
-    Number of finite layers: 1       || x^L - x^* ||^2: 0.332
-    Number of finite layers: 2       || x^L - x^* ||^2: 1.035
-    Number of finite layers: 3       || x^L - x^* ||^2: 1.834
-    Number of finite layers: 4       || x^L - x^* ||^2: 2.348
-    Number of finite layers: 10      || x^L - x^* ||^2: 2.75
-    Number of finite layers: 20      || x^L - x^* ||^2: 2.724
-    Number of finite layers: 30      || x^L - x^* ||^2: 2.927
+    Number of finite layers: 0       || x^L - x^{\star} ||^2: 0.4664
+    Number of finite layers: 1       || x^L - x^{\star} ||^2: 0.332
+    Number of finite layers: 2       || x^L - x^{\star} ||^2: 1.035
+    Number of finite layers: 3       || x^L - x^{\star} ||^2: 1.834
+    Number of finite layers: 4       || x^L - x^{\star} ||^2: 2.348
+    Number of finite layers: 10      || x^L - x^{\star} ||^2: 2.75
+    Number of finite layers: 20      || x^L - x^{\star} ||^2: 2.724
+    Number of finite layers: 30      || x^L - x^{\star} ||^2: 2.927
 ```
-this can be seen by comparing the values for large $L$ values, where the state $x^L$ is not equal to the equilibrium state $x^*$.
+this can be seen by comparing the values for large $L$ values, where the state $x^L$ is not equal to the equilibrium state $x^{\star}$.
 
 As an extension to deep equilibrium networks [monotone operator equilibrium networks](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) was introduced a year later at *NeurIPS 2020*. The monotone operator theory allows to formulate restrictions on the parameters that guarantee existence and uniqueness of a fixed point. We refer to the [Appendix A](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) for an introduction to monotone operator theory. In this post monotone operator splitting technique is assumed to be one root finding algorithm.
 
@@ -204,10 +208,12 @@ $$
 and an equilibrium point that remains constant after update
 
 $$
-    x^* = \Delta\left(W_h z^* + U_h x +b_h\right).
+\begin{equation*}
+    x^{\star} = \Delta\left(W_h z^{\star} + U_h x +b_h\right).
+\end{equation*}
 $$
 
-Finding an equilibrium point of \eqref{eq:iter} is equivalent of finding a zero of the operator splitting problem $0 \in (F+G)(z^*)$ with the operators
+Finding an equilibrium point of \eqref{eq:iter} is equivalent of finding a zero of the operator splitting problem $0 \in (F+G)(z^{\star})$ with the operators
 
 $$
 \begin{equation}
@@ -219,7 +225,9 @@ $$
 and $\Delta(\cdot) = \operatorname{prox}_f^1(\cdot)$ for some convex closed proper function $f$, where $\operatorname{prox}_f^{\alpha}$ denotes the proximal operator
 
 $$
+\begin{equation*}
     \operatorname{prox}_f^{\alpha}(x) \equiv \operatorname{argmin}_z \frac{1}{2}\|x - z\|_2^2 + \alpha f(z)
+\end{equation*}
 $$
 
 The monotone operator \eqref{eq:operator_splitting} is strongly monotone if 
@@ -231,37 +239,41 @@ I-W_h \succeq mI
 \end{equation}
 $$ 
 
-for $m>0$, this is equivalent to the existence and uniqueness of an equilibrium point $x^*$.
+for $m>0$, this is equivalent to the existence and uniqueness of an equilibrium point $x^{\star}$.
 
 For the scalar case the monotonicity property is intuitive, consider 
 
 $$
+\begin{equation*}
     F_{\operatorname{scal}}(x) = \underbrace{(1-w_h)}_{\text{slope}}x + \underbrace{(u_hu+b)}_{\text{constant}},
+\end{equation*}
 $$ 
 
-the condition \eqref{eq:condition} refers to a positive slope for $F_{\text{scal}}(x)$
+condition \eqref{eq:condition} refers to a positive slope for $F_{\text{scal}}(x)$
 
 ## Example
 To see that condition \eqref{eq:condition} on the weight $W_h$, leads to a unique fixpoint, lets revisit our example for different initializations and print the eigenvalues of $(I-W_h)$:
 ```python
-min EW of (I-W_h): 0.6272        L: 40   || x^L - x^* ||^2: 3.999e-08
-min EW of (I-W_h): 0.3782        L: 40   || x^L - x^* ||^2: 4.184e-08
-min EW of (I-W_h): 0.5671        L: 40   || x^L - x^* ||^2: 3.373e-08
-min EW of (I-W_h): 0.6786        L: 40   || x^L - x^* ||^2: 6.231e-08
-min EW of (I-W_h): 0.8057        L: 40   || x^L - x^* ||^2: 2.551e-08
-min EW of (I-W_h): 0.662         L: 40   || x^L - x^* ||^2: 3.364e-08
-min EW of (I-W_h): 0.3946        L: 40   || x^L - x^* ||^2: 4.522e-08
-min EW of (I-W_h): 0.6532        L: 40   || x^L - x^* ||^2: 2.656e-08
-min EW of (I-W_h): 0.4264        L: 40   || x^L - x^* ||^2: 3.059e-08
-min EW of (I-W_h): 0.6787        L: 40   || x^L - x^* ||^2: 5.395e-08
+min EW of (I-W_h): 0.6272        L: 40   || x^L - x^{\star} ||^2: 3.999e-08
+min EW of (I-W_h): 0.3782        L: 40   || x^L - x^{\star} ||^2: 4.184e-08
+min EW of (I-W_h): 0.5671        L: 40   || x^L - x^{\star} ||^2: 3.373e-08
+min EW of (I-W_h): 0.6786        L: 40   || x^L - x^{\star} ||^2: 6.231e-08
+min EW of (I-W_h): 0.8057        L: 40   || x^L - x^{\star} ||^2: 2.551e-08
+min EW of (I-W_h): 0.662         L: 40   || x^L - x^{\star} ||^2: 3.364e-08
+min EW of (I-W_h): 0.3946        L: 40   || x^L - x^{\star} ||^2: 4.522e-08
+min EW of (I-W_h): 0.6532        L: 40   || x^L - x^{\star} ||^2: 2.656e-08
+min EW of (I-W_h): 0.4264        L: 40   || x^L - x^{\star} ||^2: 3.059e-08
+min EW of (I-W_h): 0.6787        L: 40   || x^L - x^{\star} ||^2: 5.395e-08
 ```
 This supports the theoretical analysis.
 # System identification with equilibrium networks
 The monotone operator equilibrium network guarantees the existence and uniqueness of a fixed point by introducing a constraint on the weight. This is achieved by only allowing parameters that satisfy the constraint \eqref{eq:condition}.
 
-Now lets look back at the original problem of learning an unknown nonlinear differential equation \eqref{eq:nl_system} from a dataset $\mathcal{D}$ that consists of input-output measurements. How can we use equilibrium networks to improve prediction accuracy? In the recurrent neural network \eqref{eq:rnn_linear} the state that is fed through the nonlinear activation function $z^k$ depends on the output of the nonlinearity $w^k$ when the parameter $D_{22} is not zero. This is exactly a fixed point problem that needs to be solved before iterating through the sequence.
+Now lets look back at the original problem of learning an unknown nonlinear differential equation \eqref{eq:nl_system} from a dataset $\mathcal{D}$ that consists of input-output measurements. How can we use equilibrium networks to improve prediction accuracy? 
 
-Before equilibrium network where popular the parameter $D_{22}$ was usually set to zero to avoid such direct dependency between the output and the input. This reduced the expressiveness of the network \eqref{eq:rnn_linear}. Deep equilibrium networks allow for $D_{22}\neq 0$ to calculate the fixed point $z^{\star}$ in \eqref{eq:rnn_linear} and monotone operator deep equilibrium networks even guarantee that $z^*$ exists and that it is unique.
+In the recurrent neural network \eqref{eq:rnn_linear} the state that is fed through the nonlinear activation function $z^k$ depends on the output of the nonlinearity $w^k$ when the parameter $D_{22}$ is not zero. This is exactly a fixed point problem that needs to be solved before iterating through the sequence.
+
+Before equilibrium network where popular the parameter $D_{22}$ was usually set to zero to avoid such direct dependency between the output and the input. This reduced the expressiveness of the network \eqref{eq:rnn_linear}. Deep equilibrium networks allow for $D_{22}\neq 0$ to calculate the fixed point $z^{\star}$ in \eqref{eq:rnn_linear} and monotone operator deep equilibrium networks even guarantee that $z^{\star}$ exists and that it is unique.
 
 Additionally and that is independent of deep equilibrium networks the description of an recurrent neural network as linear, time-invariant system with nonlinear disturbance as shown in \eqref{eq:rnn_linear} allows to use well established theory of robust control to analyze stability and performance of the network.
 
