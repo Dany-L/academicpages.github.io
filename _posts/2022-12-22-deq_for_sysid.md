@@ -1,6 +1,6 @@
 ---
 title: Equilibrium Models for System Identification
-date: 2022-12-22
+date: 2023-02-28
 tags:
     - research
     - system identification
@@ -48,7 +48,7 @@ $$
 \end{equation}
 $$
 
-with $w^k = \Delta(z^k)$, the standard recurrent neural network (See [Equation 10](https://www.deeplearningbook.org/contents/rnn.html)) results as a special case of this more general description, this can be seen by choosing the hidden state $h^{k} = x^{k+1}$, $\Delta(z^k) = \tanh(z^k)$ and the following parameters:
+with $w^k = \Delta(z^k)$, the standard recurrent neural network (See [Equation 10 in Deep Learning Book Chapter 10](https://www.deeplearningbook.org/contents/rnn.html)) results as a special case of this more general description, this can be seen by choosing the hidden state $h^{k} = x^{k+1}$, $\Delta(z^k) = \tanh(z^k)$ and the following parameters:
 
 $$
 \begin{equation*}
@@ -72,11 +72,15 @@ $$
 
 Note that we neglected the bias terms.
 
-The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \lbrace A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \rbrace$ such that the error between the prediction and the output measurement is small $\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|$.
+The problem of learning the system \eqref{eq:nl_system} can now be made more formal. Given a dataset $\mathcal{D}$, find a parameter set $\theta = \lbrace A, B_1, B_2, C_1, D_{11}, D_{12}, C_2, D_{21}, D_{22} \rbrace$ such that the error between the prediction and the output measurement is small,
+
+$$
+\min_{\theta} \sum_{k=1}^{N} \|\hat{y}^k - y^k \|
+$$.
 
 Before diving into deep equilibrium networks let us shortly recap the motivation. Recurrent neural networks are a good fit to model unknown dynamical systems. The parameters are tuned by looking at the difference between the prediction of the recurrent neural network and the output measurements. A more general description of a recurrent neural network is given by a general discrete LTI system interconnected with a static nonlinearity.
 
-In the next section the basic concept of deep equilibrium networks will be explained, this naturally leads to monotone operator equilibrium networks. In section 3 the motivation is revisited and followed by a conclusion.
+In the next section the basic concept of deep equilibrium networks will be explained, this naturally leads to monotone operator equilibrium networks. We then come back to the motivation and the application of equilibrium networks for system identification.
 
 The focus of this post is to highlight th link between deep equilibrium networks and their application to problems in system and control. Details on how to calculate the gradient and monotone operator theory are only referenced.
 
@@ -108,12 +112,12 @@ The gradient with respect to $(\cdot)$ (e.g. $\theta$) can now be calculated by 
 
 $$
 \begin{equation}
-\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\right\mid_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
+\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial x}^{\star}\left(J_{g_\theta}^{-1}\right\vert_{x^*}\right) \frac{\partial f_\theta\left(x^{\star} ; u\right)}{\partial(\cdot)},
 \end{equation}
 $$
 
 
-were $J_{g_\theta}^{-1}\mid_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
+were $J_{g_\theta}^{-1}\vert_{x^*}$ is the inverse Jacobian of $g_{\theta}$ evaluated at $x^*$
 
 For details the gradient and how it can be calculated see [Chapter 4](http://implicit-layers-tutorial.org/deep_equilibrium_models/) of the implicit layer tutorial.
 
@@ -124,7 +128,8 @@ We assume:
 - sequence length $T=3$
 - size of hidden state $n_x = 10$
 - input and output size $n_y = n_u = 1$
-The weight are randomly initialized and the initial hidden state is set to zero $x^0 = 0$, $W_h \in \mathbb{R}^{n_x \times n_x}$, $U_h\in \mathbb{R}^{n_x \times T}$ and we take a linear output layer with $W_y \in \mathbb{R}^{n_y \times n_x}$, the biases are accordingly.
+
+The weights are randomly initialized and the initial hidden state is set to zero $x^0 = 0$, $W_h \in \mathbb{R}^{n_x \times n_x}$, $U_h\in \mathbb{R}^{n_x \times T}$ and we take a linear output layer with $W_y \in \mathbb{R}^{n_y \times n_x}$, the biases are accordingly.
 
 The forward pass for $L$ layers sequence-to-sequence model in PyTorch:
 ```python
@@ -162,7 +167,9 @@ Number of finite layers: 30      || x^L - x^* ||^2: 7.069e-08
 The result shows that a feed forward neural network converges to the same result as the equilibrium network if the layer size increases.
 
 # Monotone operator equilibrium networks
-Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$? If the weight are initialized by a normal distribution with standard values `mean=0`, `std=1.0` [torch.nn.init.normal](https://pytorch.org/docs/stable/nn.init.html)
+Looking at the results of the comparison a natural question to ask is whether the deep neural network always converges to a fixed point for sufficient large $L$? 
+
+If the weight are initialized by a normal distribution with standard values `mean=0`, `std=1.0` [torch.nn.init.normal](https://pytorch.org/docs/stable/nn.init.html)
 ```python
 W_h = torch.nn.Linear(in_features=n_z, out_features=n_z, bias=True)
 torch.nn.init.normal_(W_h.weight)
@@ -181,7 +188,7 @@ The finite layer network reaches a different hidden state compared to the equili
     Number of finite layers: 20      || x^L - x^* ||^2: 2.724
     Number of finite layers: 30      || x^L - x^* ||^2: 2.927
 ```
-this can be seen by comparing the values for large finite layer values which clearly deviates.
+this can be seen by comparing the values for large $L$ values, where the state $x^L$ is not equal to the equilibrium state $x^*$.
 
 As an extension to deep equilibrium networks [monotone operator equilibrium networks](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) was introduced a year later at *NeurIPS 2020*. The monotone operator theory allows to formulate restrictions on the parameters that guarantee existence and uniqueness of a fixed point. We refer to the [Appendix A](https://proceedings.neurips.cc/paper/2020/hash/798d1c2813cbdf8bcdb388db0e32d496-Abstract.html) for an introduction to monotone operator theory. In this post monotone operator splitting technique is assumed to be one root finding algorithm.
 
@@ -189,7 +196,7 @@ Consider (again) a weight-tied input-injected network
 
 $$
 \begin{equation}
-    x^{k+1} = \Delta\left(W_h z^k + U_h u+b_h\right)
+    x^{k+1} = \Delta\left(W_h x^k + U_h u+b_h\right)
     \label{eq:iter}
 \end{equation}
 $$
@@ -218,7 +225,10 @@ $$
 The monotone operator \eqref{eq:operator_splitting} is strongly monotone if 
 
 $$
-I-W_h \precc mI
+\begin{equation}
+I-W_h \succeq mI
+\label{eq:condition}
+\end{equation}
 $$ 
 
 for $m>0$, this is equivalent to the existence and uniqueness of an equilibrium point $x^*$.
@@ -226,11 +236,12 @@ for $m>0$, this is equivalent to the existence and uniqueness of an equilibrium 
 For the scalar case the monotonicity property is intuitive, consider 
 
 $$
-    F_{\operatorname{scal}}(z) = \underbrace{(1-w)}_{\text{slope}}z + \underbrace{(ux+b)}_{\text{constant}}.
+    F_{\operatorname{scal}}(x) = \underbrace{(1-w_h)}_{\text{slope}}x + \underbrace{(u_hu+b)}_{\text{constant}},
 $$ 
+the condition \eqref{eq:condition} refers to a positive slope for $F_{\text{scal}}(x)$
 
 ## Example
-To see that this restriction on the weight actually leads to a unique fixpoint, lets revisit our example for different initializations and print the eigenvalues:
+To see that condition \eqref{eq:condition} on the weight $W_h$, leads to a unique fixpoint, lets revisit our example for different initializations and print the eigenvalues of $(I-W_h)$:
 ```python
 min EW of (I-W_h): 0.6272        L: 40   || x^L - x^* ||^2: 3.999e-08
 min EW of (I-W_h): 0.3782        L: 40   || x^L - x^* ||^2: 4.184e-08
@@ -245,6 +256,13 @@ min EW of (I-W_h): 0.6787        L: 40   || x^L - x^* ||^2: 5.395e-08
 ```
 This supports the theoretical analysis.
 # System identification with equilibrium networks
+The monotone operator equilibrium network guarantees the existence and uniqueness of a fixed point by introducing a constraint on the weight. This is achieved by only allowing parameters that satisfy the constraint \eqref{eq:condition}.
 
+Now lets look back at the original problem of learning an unknown nonlinear differential equation \eqref{eq:nl_system} from a dataset $\mathcal{D}$ that consists of input-output measurements. How can we use equilibrium networks to improve prediction accuracy? In the recurrent neural network \eqref{eq:rnn_linear} the state that is fed through the nonlinear activation function $z^k$ depends on the output of the nonlinearity $w^k$ when the parameter $D_{22} is not zero. This is exactly a fixed point problem that needs to be solved before iterating through the sequence.
 
+Before equilibrium network where popular the parameter $D_{22}$ was usually set to zero to avoid such direct dependency between the output and the input. This reduced the expressiveness of the network \eqref{eq:rnn_linear}. Deep equilibrium networks allow for $D_{22}\neq 0$ to calculate the fixed point $z^*$ in \eqref{eq:rnn_linear} and monotone operator deep equilibrium networks even guarantee that $z^*$ exists and that it is unique.
+
+Additionally and that is independent of deep equilibrium networks the description of an recurrent neural network as linear, time-invariant system with nonlinear disturbance as shown in \eqref{eq:rnn_linear} allows to use well established theory of robust control to analyze stability and performance of the network.
+
+Deep equilibrium networks are interesting from a system theoretic view even though the successful applications are still missing, first promising results e.g. for identifying the vibration of an aircraft with performance guarantees are reported in [Recurrent Equilibrium Networks: Unconstrained Learning of Stable and Robust Dynamical Models](https://ieeexplore.ieee.org/abstract/document/9683054/?casa_token=WIXw7suBsNAAAAAA:4h-ngy6QRpZpXKUfcsveD93_F-c22w06--pNo2ME-2ivpmZQTKzgQPbbXE7r9puLj4U2TU756F4).
 
