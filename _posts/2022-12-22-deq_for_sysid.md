@@ -87,7 +87,7 @@ The focus of this post is to highlight th link between deep equilibrium networks
 Consider a input sequence $u$ that is fed through a neural network with $L$ layers, on each layer $f_{\theta}^{0}(x^0, u), \ldots, f_{\theta}^{L-1}(x^{L-1}, u)$, where $x$ represents the hidden state and $f_{\theta}^i$ the activation function on each layer, the network is shown in Figure 
 
 <script type="text/tikz">
-  \begin{tikzpicture}
+  \begin{tikzpicture}[align=center]
     \draw (0,0) circle (1in);
   \end{tikzpicture}
 </script>
